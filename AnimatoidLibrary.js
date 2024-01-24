@@ -25,7 +25,7 @@ class Sequencer {
   createKeyFrame(state, milliseconds, to, easingCategory, easing) {
      const tween = new TWEEN.Tween(state, false)
      globalTweens.push(tween)
-		.to(to, millisecinds) // Move to (300, 200) in 1 second.
+		.to(to, milliseconds) // Move to (300, 200) in 1 second.
 		.easing(TWEEN.Easing[easingCategory][easing]) // Use an easing function to make the animation smooth.
 		.onUpdate((stateUpdate) => {
 			if (stateUpdate.position) {
