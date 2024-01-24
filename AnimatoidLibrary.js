@@ -3,7 +3,8 @@ const globalTweens = []
 class Sequencer {
   constructor(mesh) {
     this.o = {
-      returnToState: true
+      returnToState: true,
+      repeat: false
     };
     this.m = mesh;
     this.kf = []
@@ -40,6 +41,9 @@ class Sequencer {
       
     }
       
+      if (this.o.repeat) {
+        return this.runAnimation(adc)
+      }
       adc()
       return
   }
@@ -56,7 +60,11 @@ class Sequencer {
     this.o.returnToState = b;
   }
 
-  createKeyFrame(state, milliseconds, to, easingCategory, easing, startDelay=0) {
+  setRepeat(b) {
+    this.o.repeat = b
+  }
+
+  createKeyFrame(state, milliseconds, to, easingCategory, easing, startDelay=0, indvr=0) {
     const ostate =JSON.stringify(state)
      const tween = new TWEEN.Tween(state, false)
      globalTweens.push(tween)
@@ -79,6 +87,7 @@ class Sequencer {
           this.m.rotation.z = stateUpdate.rotation.z
       }
 		})
+    tween.repeat(indvr)
 
     this.kf.push([tween, to, milliseconds, startDelay, ostate])
   }
