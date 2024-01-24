@@ -14,14 +14,27 @@ class Sequencer {
     const originalState = JSON.parse(this.kf[0][4])
     const kfl = this.kf.length
     const rts = this.o.returnToState
+    console.log(rts)
     if (this.globalKeyFrameIndex >= kfl) { 
       this.globalKeyFrameIndex = 0
 
       if (rts == true) {
         this.kf.at(-1)[0].onComplete(() => {
-          this.m.position.x = originalState.position.x
-          this.m.position.y = originalState.position.y
-          this.m.position.z = originalState.position.z
+          if (originalState.position) {
+            this.m.position.x = originalState.position.x
+            this.m.position.y = originalState.position.y
+            this.m.position.z = originalState.position.z
+          }
+
+          if (originalState.color) {
+            this.m.material.color.set(originalState.color.hex)
+          }
+
+          if (originalState.rotation) {
+            this.m.rotation.x = originalState.rotation.x
+            this.m.rotation.y = originalState.rotation.y
+            this.m.rotation.z = originalState.rotation.z
+          }
         })
     
       
@@ -43,7 +56,7 @@ class Sequencer {
     this.o.returnToState = b;
   }
 
-  createKeyFrame(state, milliseconds, to, easingCategory, easing, startPosition=0) {
+  createKeyFrame(state, milliseconds, to, easingCategory, easing, startDelay=0) {
     const ostate =JSON.stringify(state)
      const tween = new TWEEN.Tween(state, false)
      globalTweens.push(tween)
@@ -55,9 +68,19 @@ class Sequencer {
         this.m.position.y = stateUpdate.position.y
         this.m.position.z = stateUpdate.position.z
       }
+
+      if (stateUpdate.color) {
+        this.m.material.color.set(stateUpdate.color.hex)
+      }
+
+      if (stateUpdate.rotation) {
+          this.m.rotation.x = stateUpdate.rotation.x
+          this.m.rotation.y = stateUpdate.rotation.y
+          this.m.rotation.z = stateUpdate.rotation.z
+      }
 		})
 
-    this.kf.push([tween, to, milliseconds, startPosition, ostate])
+    this.kf.push([tween, to, milliseconds, startDelay, ostate])
   }
 
   callTweenByIndex(i) {
