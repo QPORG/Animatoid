@@ -2,27 +2,49 @@ const globalTweens = []
 
 class Sequencer {
   constructor(mesh) {
-    this.o = {returnToState: true};
+    this.o = {
+      returnToState: true
+    };
     this.m = mesh;
     this.kf = []
     this.globalKeyFrameIndex = 0;
   }
 
-  runAnimation() {
-    setTimeout(function() {
-      if (this.globalKeyFrameIndex > this.kf.length) return
+  runAnimation(adc=()=>{}) {
+    const originalState = JSON.parse(this.kf[0][4])
+    const kfl = this.kf.length
+    const rts = this.o.returnToState
+    if (this.globalKeyFrameIndex >= kfl) { 
+      this.globalKeyFrameIndex = 0
+
+      if (rts == true) {
+        this.kf.at(-1)[0].onComplete(() => {
+          this.m.position.x = originalState.position.x
+          this.m.position.y = originalState.position.y
+          this.m.position.z = originalState.position.z
+        })
+    
+      
+    }
+      
+      adc()
+      return
+  }
+  
+    setTimeout(() => {
       this.callTweenByIndex(this.globalKeyFrameIndex)
-      this.kf[this.globalKeyFrameIndex][0].onEnd(()=> {
+      setTimeout(() => {
         this.globalKeyFrameIndex++
-        runAnimation()
-      })
-    },this.kf[this.globalKeyFrameIndex][2])
+        this.runAnimation(adc)
+      },this.kf[this.globalKeyFrameIndex][2])
+    },this.kf[this.globalKeyFrameIndex][3])
   }
   setReturnToState(b) {
     this.o.returnToState = b;
   }
 
-  createKeyFrame(state, milliseconds, to, easingCategory, easing) {
+  createKeyFrame(state, milliseconds, to, easingCategory, easing, startPosition=0) {
+    const ostate =JSON.stringify(state)
      const tween = new TWEEN.Tween(state, false)
      globalTweens.push(tween)
 		tween.to(to, milliseconds) // Move to (300, 200) in 1 second.
@@ -35,7 +57,7 @@ class Sequencer {
       }
 		})
 
-    this.kf.push([tween, to, delayAfter])
+    this.kf.push([tween, to, milliseconds, startPosition, ostate])
   }
 
   callTweenByIndex(i) {
